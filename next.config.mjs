@@ -9,7 +9,7 @@ const nextConfig = {
       },
     ],
   },
-  // Redirect root to static index.html (until home page is also dynamic)
+  // Redirect root to static index.html
   async redirects() {
     return [
       {
@@ -19,8 +19,20 @@ const nextConfig = {
       },
     ];
   },
-  // Note: /projecten and /projecten/[slug] are now handled by dynamic Next.js pages
-  // The old static HTML rewrites have been removed
+  // Use static HTML files for frontend (they have all animations & hamburger menu)
+  // CMS is used for admin management only for now
+  async rewrites() {
+    return [
+      {
+        source: '/projecten',
+        destination: '/projecten.html',
+      },
+      {
+        source: '/projecten/dok6',
+        destination: '/projects/dok6.html',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
