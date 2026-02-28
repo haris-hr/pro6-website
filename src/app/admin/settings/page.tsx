@@ -151,8 +151,8 @@ export default function SettingsAdmin() {
     return (
       <div>
         <AdminHeader
-          title="Homepage & Site-instellingen"
-          subtitle="Bewerk de contactgegevens en footer die op de homepage worden weergegeven"
+          title="Contact & Socials"
+          subtitle="Bewerk de contactgegevens en social media links"
         />
         <div style={{ 
           display: "flex", 
@@ -170,8 +170,8 @@ export default function SettingsAdmin() {
   return (
     <div>
       <AdminHeader
-        title="Homepage & Site-instellingen"
-        subtitle="Bewerk de contactgegevens en footer die op de homepage worden weergegeven"
+        title="Contact & Socials"
+        subtitle="Bewerk de contactgegevens en social media links"
       />
 
       <div style={{ padding: "0 30px 30px", maxWidth: "800px" }}>
