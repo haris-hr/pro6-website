@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminHeader } from "@/components/admin";
@@ -9,8 +9,9 @@ import { ArrowLeft, Save, Loader2, Plus, X, GripVertical } from "lucide-react";
 import { getProjectById, updateProject, getAllMedia } from "@/lib/firebase/firestore";
 import type { Project, MediaFile } from "@/types";
 
-export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditProjectPage() {
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
