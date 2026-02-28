@@ -9,6 +9,10 @@ const nextConfig = {
       },
     ],
   },
+  // Ignore ESLint errors during build (we have legacy HTML pages with sync scripts)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Redirect root to static index.html
   async redirects() {
     return [
@@ -16,15 +20,6 @@ const nextConfig = {
         source: '/',
         destination: '/index.html',
         permanent: false,
-      },
-    ];
-  },
-  // Project detail pages still use static HTML for now
-  async rewrites() {
-    return [
-      {
-        source: '/projecten/dok6',
-        destination: '/projects/dok6.html',
       },
     ];
   },

@@ -1,5 +1,6 @@
 import { getProjectBySlug, getPublishedProjects } from "@/lib/firebase/firestore";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import type { Project } from "@/types";
 
 export const revalidate = 0;
@@ -310,74 +311,72 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
         <div id="rotate-device"></div>
 
-        <script src="/js/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/Flip.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.4.0/smooth-scrollbar.js"></script>
+        <Script src="/js/jquery.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/Flip.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.4.0/smooth-scrollbar.js" strategy="beforeInteractive" />
 
-        <script src="/js/clapat.js"></script>
-        <script src="/js/plugins.js"></script>
-        <script src="/js/common.js"></script>
-        <script src="/js/contact.js"></script>
-        <script src="/js/scripts.js"></script>
+        <Script src="/js/clapat.js" strategy="afterInteractive" />
+        <Script src="/js/plugins.js" strategy="afterInteractive" />
+        <Script src="/js/common.js" strategy="afterInteractive" />
+        <Script src="/js/contact.js" strategy="afterInteractive" />
+        <Script src="/js/scripts.js" strategy="afterInteractive" />
 
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              function initScrollAnimations() {
-                if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-                
-                var heroImage = document.getElementById('hero-image-wrapper');
-                if (heroImage) {
-                  gsap.fromTo(heroImage, 
-                    { opacity: 0, scale: 1.05 },
-                    {
-                      opacity: 1,
-                      scale: 1,
-                      ease: "none",
-                      scrollTrigger: {
-                        trigger: heroImage,
-                        scroller: "#content-scroll",
-                        start: "top bottom",
-                        end: "top 40%",
-                        scrub: 0.5
-                      }
+        <Script id="scroll-animations" strategy="afterInteractive">{`
+          (function() {
+            function initScrollAnimations() {
+              if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+              
+              var heroImage = document.getElementById('hero-image-wrapper');
+              if (heroImage) {
+                gsap.fromTo(heroImage, 
+                  { opacity: 0, scale: 1.05 },
+                  {
+                    opacity: 1,
+                    scale: 1,
+                    ease: "none",
+                    scrollTrigger: {
+                      trigger: heroImage,
+                      scroller: "#content-scroll",
+                      start: "top bottom",
+                      end: "top 40%",
+                      scrub: 0.5
                     }
-                  );
-                }
-                
-                var quoteImage = document.getElementById('quote-image');
-                if (quoteImage) {
-                  gsap.fromTo(quoteImage, 
-                    { scale: 0.7 },
-                    {
-                      scale: 1,
-                      ease: "none",
-                      scrollTrigger: {
-                        trigger: quoteImage,
-                        scroller: "#content-scroll",
-                        start: "top bottom",
-                        end: "top 20%",
-                        scrub: 0.3
-                      }
-                    }
-                  );
-                }
+                  }
+                );
               }
               
-              if (document.readyState === 'complete') {
-                setTimeout(initScrollAnimations, 100);
-              } else {
-                window.addEventListener('load', function() {
-                  setTimeout(initScrollAnimations, 100);
-                });
+              var quoteImage = document.getElementById('quote-image');
+              if (quoteImage) {
+                gsap.fromTo(quoteImage, 
+                  { scale: 0.7 },
+                  {
+                    scale: 1,
+                    ease: "none",
+                    scrollTrigger: {
+                      trigger: quoteImage,
+                      scroller: "#content-scroll",
+                      start: "top bottom",
+                      end: "top 20%",
+                      scrub: 0.3
+                    }
+                  }
+                );
               }
-            })();
-          `
-        }} />
+            }
+            
+            if (document.readyState === 'complete') {
+              setTimeout(initScrollAnimations, 100);
+            } else {
+              window.addEventListener('load', function() {
+                setTimeout(initScrollAnimations, 100);
+              });
+            }
+          })();
+        `}</Script>
       </body>
     </html>
   );
