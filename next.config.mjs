@@ -19,14 +19,9 @@ const nextConfig = {
       },
     ];
   },
-  // Use static HTML files for frontend (they have all animations & hamburger menu)
-  // CMS is used for admin management only for now
+  // Project detail pages still use static HTML for now
   async rewrites() {
     return [
-      {
-        source: '/projecten',
-        destination: '/projecten.html',
-      },
       {
         source: '/projecten/dok6',
         destination: '/projects/dok6.html',
