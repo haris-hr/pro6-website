@@ -1,7 +1,7 @@
-import { getProjectBySlug, getPublishedProjects } from "@/lib/firebase/firestore";
+import { getProjectBySlug, getPublishedProjects, getSiteSettings } from "@/lib/firebase/firestore";
 import { notFound } from "next/navigation";
 import Script from "next/script";
-import type { Project } from "@/types";
+import type { Project, SiteSettings } from "@/types";
 
 export const revalidate = 0;
 
@@ -12,11 +12,12 @@ interface Props {
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
   
-  // Fetch current project and all projects for navigation
-  const [project, allProjects] = await Promise.all([
+  // Fetch current project, all projects for navigation, and settings
+  const [project, allProjects, settings] = await Promise.all([
     getProjectBySlug(slug),
-    getPublishedProjects()
-  ]);
+    getPublishedProjects(),
+    getSiteSettings()
+  ]) as [Project | null, Project[], SiteSettings | null];
 
   if (!project) {
     notFound();
@@ -269,6 +270,34 @@ export default async function ProjectDetailPage({ params }: Props) {
 
                 {/* Footer */}
                 <footer className="clapat-footer hidden">
+                  {/* Contact Row */}
+                  <div className="content-row full row_padding_top row_padding_bottom dark-section text-align-center disable-header-gradient footer-fix" data-bgcolor="#0c0c0c">
+                    <div className="one_third has-animation" data-delay="100">
+                      <div className="box-icon-wrapper block-boxes">
+                        <div className="box-icon">
+                          <i className="fa fa-map-marker fa-2x" aria-hidden="true"></i>
+                        </div>
+                        <div className="box-icon-content">
+                          <h6 className="no-margins">{settings?.footer?.address?.street || 'Laat 88'}</h6>
+                          <p>{settings?.footer?.address?.city || '1811 EK Alkmaar'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="one_third has-animation" data-delay="200">
+                      <hr /><p className="bigger">{settings?.siteName || 'Pro6'}</p>
+                    </div>
+                    <div className="one_third last has-animation" data-delay="300">
+                      <div className="box-icon-wrapper block-boxes">
+                        <div className="box-icon">
+                          <i className="fa fa-phone fa-2x" aria-hidden="true"></i>
+                        </div>
+                        <div className="box-icon-content">
+                          <h6 className="no-margins">{settings?.footer?.phone || '072 785 5228'}</h6>
+                          <p>{settings?.footer?.email || 'info@pro6vastgoed.nl'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div id="footer-container">
                     <div id="backtotop" className="button-wrap left">
                       <div className="icon-wrap parallax-wrap">
@@ -276,17 +305,23 @@ export default async function ProjectDetailPage({ params }: Props) {
                           <i className="fa-solid fa-angle-up"></i>
                         </div>
                       </div>
-                      <div className="button-text sticky left"><span data-hover="Back Top">Back Top</span></div>
+                      <div className="button-text sticky left"><span data-hover="Back Top">Terug</span></div>
                     </div>
                     <div className="footer-middle">
-                      <div className="copyright">2025 © Pro6. All rights reserved.</div>
+                      <div className="copyright">2026 ©</div>
                     </div>
                     <div className="socials-wrap">
                       <div className="socials-icon"><i className="fa-solid fa-share-nodes"></i></div>
-                      <div className="socials-text">Follow Us</div>
+                      <div className="socials-text">Volg ons</div>
                       <ul className="socials">
-                        <li><span className="parallax-wrap"><a className="parallax-element" href="#" target="_blank">Li</a></span></li>
-                        <li><span className="parallax-wrap"><a className="parallax-element" href="#" target="_blank">Ig</a></span></li>
+                        {settings?.footer?.socialLinks?.map((social, idx) => (
+                          <li key={idx}><span className="parallax-wrap"><a className="parallax-element" href={social.url || '#'} target="_blank">{social.label}</a></span></li>
+                        )) || (
+                          <>
+                            <li><span className="parallax-wrap"><a className="parallax-element" href="#" target="_blank">Li</a></span></li>
+                            <li><span className="parallax-wrap"><a className="parallax-element" href="#" target="_blank">Ig</a></span></li>
+                          </>
+                        )}
                       </ul>
                     </div>
                   </div>
