@@ -1,0 +1,129 @@
+/* Custom Hero Video Background Styling */
+#hero {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+#hero .hero-video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#hero .content-row {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#hero video.bgvid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+
+.burger-lines .active #menu-burger span {
+    background-color: #000;
+}
+
+#hero .outer {
+    display: flex;
+    align-items: flex-end;;
+    height: 100%;
+    padding-bottom: 240px;
+}
+
+#hero .inner {
+    display: block;
+}
+
+#hero .hero-title {
+    font-size: calc(1rem + 6vw);
+    line-height: calc(1rem + 6vw);
+    letter-spacing: 4px;
+    font-weight: 300;
+    font-size: 70px;
+
+}
+
+.pinned-lists-paragraph li {
+    letter-spacing: 0;
+}
+
+.pinned-lists-paragraph-item {
+    margin-top:45px !important;
+}
+
+.smooth-scroll #content-scroll {
+    background:rgb(12, 12, 12);
+}
+
+/* Footer Reveal Effect */
+#main {
+    position: relative;
+    background-color: #fff;
+    z-index: 2;
+    will-change: transform;
+    margin-bottom: 100vh; /* Space for footer reveal */
+}
+
+.clapat-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure content-scroll has enough height for the footer */
+#content-scroll {
+    position: relative;
+}
+
+.dark-section .box-icon {
+    color:#fff;
+}
+
+#footer-container {
+    margin:0;
+    background:#fff;
+}
+
+#magic-cursor{
+    display: none;
+}
+
+#hero-background-layer .background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 1;
+    background-size: cover;
+    background-position: center center;
+}
+
+/* Hero Image Fade-in on Scroll - Initial state */
+#hero-image-wrapper {
+    opacity: 0;
+    will-change: opacity, transform;
+}
