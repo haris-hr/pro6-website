@@ -11,7 +11,6 @@ interface FormSettings {
   siteName: string;
   logo: string;
   logoWhite: string;
-  primaryColor: string;
   address: {
     street: string;
     city: string;
@@ -29,7 +28,6 @@ const defaultSettings: FormSettings = {
   siteName: "Pro6",
   logo: "/images/logo.png",
   logoWhite: "/images/logo-white.png",
-  primaryColor: "#000000",
   address: {
     street: "Laat 88",
     city: "1811 EK Alkmaar",
@@ -53,7 +51,6 @@ function toFormSettings(siteSettings: SiteSettings): FormSettings {
     siteName: siteSettings.siteName,
     logo: siteSettings.logo,
     logoWhite: siteSettings.logoWhite,
-    primaryColor: siteSettings.primaryColor,
     address: {
       street: siteSettings.footer.address.street,
       city: siteSettings.footer.address.city,
@@ -74,7 +71,6 @@ function toSiteSettings(formSettings: FormSettings): Partial<SiteSettings> {
     siteName: formSettings.siteName,
     logo: formSettings.logo,
     logoWhite: formSettings.logoWhite,
-    primaryColor: formSettings.primaryColor,
     navigation: [
       { label: "Home", href: "/" },
       { label: "Projecten", href: "/projecten" },
@@ -207,28 +203,6 @@ export default function SettingsAdmin() {
               }
               style={inputStyle}
             />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={labelStyle}>Primaire kleur</label>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <input
-                type="color"
-                value={settings.primaryColor}
-                onChange={(e) =>
-                  setSettings((prev) => ({ ...prev, primaryColor: e.target.value }))
-                }
-                style={{ width: "50px", height: "40px", border: "none", cursor: "pointer" }}
-              />
-              <input
-                type="text"
-                value={settings.primaryColor}
-                onChange={(e) =>
-                  setSettings((prev) => ({ ...prev, primaryColor: e.target.value }))
-                }
-                style={{ ...inputStyle, flex: 1 }}
-              />
-            </div>
           </div>
         </div>
 
