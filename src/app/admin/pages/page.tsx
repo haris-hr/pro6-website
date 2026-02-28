@@ -117,7 +117,12 @@ export default function PagesAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {pages.map((page) => (
+                {pages.map((page) => {
+                  // Pages that don't have working routes yet
+                  const disabledPages = ['contact', 'over-ons'];
+                  const isDisabled = disabledPages.includes(page.slug);
+                  
+                  return (
                   <tr
                     key={page.id}
                     style={{ borderBottom: "1px solid #e5e7eb" }}
@@ -142,45 +147,87 @@ export default function PagesAdmin() {
                     </td>
                     <td style={{ padding: "16px 20px", textAlign: "right" }}>
                       <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-                        <Link
-                          href={`/${page.slug}`}
-                          target="_blank"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            padding: "8px 12px",
-                            backgroundColor: "#f3f4f6",
-                            color: "#374151",
-                            borderRadius: "6px",
-                            textDecoration: "none",
-                            fontSize: "14px",
-                          }}
-                        >
-                          <Eye size={16} />
-                          Bekijk
-                        </Link>
-                        <Link
-                          href={`/admin/pages/${page.id}`}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            padding: "8px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            borderRadius: "6px",
-                            textDecoration: "none",
-                            fontSize: "14px",
-                          }}
-                        >
-                          <Edit size={16} />
-                          Bewerk
-                        </Link>
+                        {isDisabled ? (
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              padding: "8px 12px",
+                              backgroundColor: "#e5e7eb",
+                              color: "#9ca3af",
+                              borderRadius: "6px",
+                              fontSize: "14px",
+                              cursor: "not-allowed",
+                            }}
+                            title="Pagina nog niet beschikbaar"
+                          >
+                            <Eye size={16} />
+                            Bekijk
+                          </span>
+                        ) : (
+                          <Link
+                            href={`/${page.slug}`}
+                            target="_blank"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              padding: "8px 12px",
+                              backgroundColor: "#f3f4f6",
+                              color: "#374151",
+                              borderRadius: "6px",
+                              textDecoration: "none",
+                              fontSize: "14px",
+                            }}
+                          >
+                            <Eye size={16} />
+                            Bekijk
+                          </Link>
+                        )}
+                        {isDisabled ? (
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              padding: "8px 12px",
+                              backgroundColor: "#93c5fd",
+                              color: "#fff",
+                              borderRadius: "6px",
+                              fontSize: "14px",
+                              cursor: "not-allowed",
+                              opacity: 0.6,
+                            }}
+                            title="Pagina nog niet beschikbaar"
+                          >
+                            <Edit size={16} />
+                            Bewerk
+                          </span>
+                        ) : (
+                          <Link
+                            href={`/admin/pages/${page.id}`}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              padding: "8px 12px",
+                              backgroundColor: "#3b82f6",
+                              color: "#fff",
+                              borderRadius: "6px",
+                              textDecoration: "none",
+                              fontSize: "14px",
+                            }}
+                          >
+                            <Edit size={16} />
+                            Bewerk
+                          </Link>
+                        )}
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
