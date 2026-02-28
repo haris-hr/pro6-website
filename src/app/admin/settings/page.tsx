@@ -8,7 +8,6 @@ import type { SiteSettings } from "@/types";
 
 // Local settings type that matches the form fields
 interface FormSettings {
-  siteName: string;
   logo: string;
   logoWhite: string;
   address: {
@@ -25,7 +24,6 @@ interface FormSettings {
 }
 
 const defaultSettings: FormSettings = {
-  siteName: "Pro6",
   logo: "/images/logo.png",
   logoWhite: "/images/logo-white.png",
   address: {
@@ -48,7 +46,6 @@ function toFormSettings(siteSettings: SiteSettings): FormSettings {
   const instagramLink = siteSettings.footer.socialLinks.find(s => s.platform === 'instagram');
 
   return {
-    siteName: siteSettings.siteName,
     logo: siteSettings.logo,
     logoWhite: siteSettings.logoWhite,
     address: {
@@ -68,7 +65,6 @@ function toFormSettings(siteSettings: SiteSettings): FormSettings {
 // Convert FormSettings back to SiteSettings for Firestore
 function toSiteSettings(formSettings: FormSettings): Partial<SiteSettings> {
   return {
-    siteName: formSettings.siteName,
     logo: formSettings.logo,
     logoWhite: formSettings.logoWhite,
     navigation: [
@@ -155,8 +151,8 @@ export default function SettingsAdmin() {
     return (
       <div>
         <AdminHeader
-          title="Instellingen"
-          subtitle="Configureer site-instellingen"
+          title="Homepage & Site-instellingen"
+          subtitle="Bewerk de contactgegevens en footer die op de homepage worden weergegeven"
         />
         <div style={{ 
           display: "flex", 
@@ -174,38 +170,11 @@ export default function SettingsAdmin() {
   return (
     <div>
       <AdminHeader
-        title="Instellingen"
-        subtitle="Configureer site-instellingen"
+        title="Homepage & Site-instellingen"
+        subtitle="Bewerk de contactgegevens en footer die op de homepage worden weergegeven"
       />
 
       <div style={{ padding: "0 30px 30px", maxWidth: "800px" }}>
-        {/* General Settings */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "12px",
-            padding: "24px",
-            marginBottom: "24px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ margin: "0 0 20px", fontSize: "18px", fontWeight: 600 }}>
-            Algemeen
-          </h2>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={labelStyle}>Site naam</label>
-            <input
-              type="text"
-              value={settings.siteName}
-              onChange={(e) =>
-                setSettings((prev) => ({ ...prev, siteName: e.target.value }))
-              }
-              style={inputStyle}
-            />
-          </div>
-        </div>
-
         {/* Contact Info */}
         <div
           style={{

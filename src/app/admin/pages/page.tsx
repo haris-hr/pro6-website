@@ -121,6 +121,15 @@ export default function PagesAdmin() {
                   // Pages that don't have working routes yet
                   const disabledPages = ['contact', 'over-ons'];
                   const isDisabled = disabledPages.includes(page.slug);
+                  // Homepage edit goes to settings, projecten edit goes to projects admin
+                  const isHomepage = page.slug === "" || page.id === "home";
+                  const isProjecten = page.slug === "projecten";
+                  const editHref = isHomepage 
+                    ? "/admin/settings" 
+                    : isProjecten 
+                      ? "/admin/projects" 
+                      : `/admin/pages/${page.id}`;
+                  const viewHref = isHomepage ? "/" : `/${page.slug}`;
                   
                   return (
                   <tr
@@ -138,7 +147,7 @@ export default function PagesAdmin() {
                       </div>
                     </td>
                     <td style={{ padding: "16px 20px", color: "#6b7280" }}>
-                      /{page.slug}
+                      /{page.slug || "(homepage)"}
                     </td>
                     <td style={{ padding: "16px 20px", color: "#6b7280" }}>
                       {page.updatedAt instanceof Date 
@@ -167,7 +176,7 @@ export default function PagesAdmin() {
                           </span>
                         ) : (
                           <Link
-                            href={`/${page.slug}`}
+                            href={viewHref}
                             target="_blank"
                             style={{
                               display: "inline-flex",
@@ -206,7 +215,7 @@ export default function PagesAdmin() {
                           </span>
                         ) : (
                           <Link
-                            href={`/admin/pages/${page.id}`}
+                            href={editHref}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
