@@ -115,9 +115,21 @@ export default function MediaAdmin() {
   };
 
   const handleCopyUrl = (url: string, id: string) => {
-    navigator.clipboard.writeText(url);
+    // Create full URL if it's a relative path
+    const fullUrl = url.startsWith('/') 
+      ? `${window.location.origin}${url}`
+      : url;
+    navigator.clipboard.writeText(fullUrl);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleOpenImage = (url: string) => {
+    // Create full URL if it's a relative path
+    const fullUrl = url.startsWith('/') 
+      ? `${window.location.origin}${url}`
+      : url;
+    window.open(fullUrl, '_blank');
   };
 
   const formatFileSize = (bytes: number) => {
@@ -267,14 +279,17 @@ export default function MediaAdmin() {
                       boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
                   >
-                    {/* Preview */}
+                    {/* Preview - clickable */}
                     <div
+                      onClick={() => handleOpenImage(item.url)}
                       style={{
                         width: "100%",
                         height: "150px",
                         backgroundColor: "#f3f4f6",
                         position: "relative",
+                        cursor: "pointer",
                       }}
+                      title="Klik om te openen"
                     >
                       {item.type === "image" ? (
                         <Image
@@ -421,14 +436,17 @@ export default function MediaAdmin() {
                         boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                       }}
                     >
-                      {/* Preview */}
+                      {/* Preview - clickable */}
                       <div
+                        onClick={() => handleOpenImage(item.url)}
                         style={{
                           width: "100%",
                           height: "150px",
                           backgroundColor: "#f3f4f6",
                           position: "relative",
+                          cursor: "pointer",
                         }}
+                        title="Klik om te openen"
                       >
                         {item.type === "image" ? (
                           <Image
