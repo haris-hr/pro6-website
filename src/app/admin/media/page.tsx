@@ -21,7 +21,7 @@ export default function MediaAdmin() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"uploaded" | "static">("static");
+  const [activeTab, setActiveTab] = useState<"uploaded" | "static">("uploaded");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -162,18 +162,18 @@ export default function MediaAdmin() {
         {/* Tabs */}
         <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
           <button
-            onClick={() => setActiveTab("static")}
-            style={tabStyle(activeTab === "static")}
-          >
-            <FolderOpen size={18} />
-            Bestaande afbeeldingen ({staticImages.length})
-          </button>
-          <button
             onClick={() => setActiveTab("uploaded")}
             style={tabStyle(activeTab === "uploaded")}
           >
             <Upload size={18} />
             Geüploade bestanden ({media.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("static")}
+            style={tabStyle(activeTab === "static")}
+          >
+            <FolderOpen size={18} />
+            Bestaande afbeeldingen ({staticImages.length})
           </button>
         </div>
 
