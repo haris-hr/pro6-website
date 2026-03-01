@@ -15,7 +15,7 @@ const navItems = [
   { href: "/admin/pages", label: "Pagina's", icon: FileText },
   { href: "/admin/projects", label: "Projecten", icon: FolderOpen },
   { href: "/admin/media", label: "Media", icon: Image },
-  { href: "/admin/settings", label: "Contact & Socials", icon: Settings },
+  { href: "/admin/settings", label: "Site Instellingen", icon: Settings },
 ];
 
 export default function AdminSidebar({ isCollapsed = false, onToggle }: AdminSidebarProps) {

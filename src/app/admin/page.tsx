@@ -28,8 +28,8 @@ const quickLinks = [
   },
   {
     href: "/admin/settings",
-    label: "Contact & Socials",
-    description: "Bewerk contactgegevens en social media links",
+    label: "Site Instellingen",
+    description: "Homepage afbeeldingen, contact en socials",
     icon: Settings,
     color: "#8b5cf6",
   },

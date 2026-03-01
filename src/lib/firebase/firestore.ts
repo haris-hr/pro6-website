@@ -438,6 +438,14 @@ export async function seedDatabase(): Promise<{ pages: number; projects: number 
       { label: "Over ons", href: "/over-ons" },
       { label: "Contact", href: "/contact" },
     ],
+    homepage: {
+      images: [
+        "/images/pro6-1.jpg",
+        "/images/pro6-2.jpg",
+        "/images/pro6-3.jpg",
+        "/images/pro6-4.jpg",
+      ],
+    },
     footer: {
       address: {
         street: "Laat 88",
