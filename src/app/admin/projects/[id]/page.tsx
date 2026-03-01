@@ -459,7 +459,7 @@ export default function EditProjectPage() {
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
                     {currentMedia.map((item) => (
                       <div
-                        key={item.url || item.id}
+                        key={item.url}
                         onClick={() => handleImageSelect(item.url)}
                         style={{ aspectRatio: "1/1", borderRadius: "8px", overflow: "hidden", cursor: "pointer", border: "2px solid transparent", transition: "border-color 0.2s", position: "relative" }}
                         onMouseEnter={(e) => e.currentTarget.style.borderColor = "#3b82f6"}
