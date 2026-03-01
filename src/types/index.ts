@@ -170,6 +170,9 @@ export interface SiteSettings {
     label: string;
     href: string;
   }[];
+  homepage: {
+    images: string[]; // Array of 4 images for homepage gallery
+  };
   footer: {
     address: {
       street: string;

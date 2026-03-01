@@ -22,6 +22,7 @@ export async function GET() {
         phone: settings.footer.phone,
         email: settings.footer.email,
         socialLinks: settings.footer.socialLinks,
+        homepageImages: settings.homepage?.images || [],
       }
     });
   } catch (error) {

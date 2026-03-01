@@ -5,6 +5,36 @@
 (function() {
   'use strict';
 
+  function updateHomepageImages(images) {
+    if (!images || images.length < 4) return;
+    
+    // Map of original image names to new URLs
+    var imageMap = {
+      'images/pro6-1.jpg': images[0],
+      'images/pro6-2.jpg': images[1],
+      'images/pro6-3.jpg': images[2],
+      'images/pro6-4.jpg': images[3],
+    };
+    
+    // Update all img elements
+    var allImages = document.querySelectorAll('img');
+    allImages.forEach(function(img) {
+      var src = img.getAttribute('src');
+      if (src && imageMap[src]) {
+        img.setAttribute('src', imageMap[src]);
+      }
+    });
+    
+    // Update all image links (lightbox)
+    var allLinks = document.querySelectorAll('a.image-link');
+    allLinks.forEach(function(link) {
+      var href = link.getAttribute('href');
+      if (href && imageMap[href]) {
+        link.setAttribute('href', imageMap[href]);
+      }
+    });
+  }
+
   function updateFooterWithSettings(settings) {
     // Update address
     if (settings.address) {
@@ -86,6 +116,9 @@
       .then(function(data) {
         if (data.success && data.settings) {
           updateFooterWithSettings(data.settings);
+          if (data.settings.homepageImages) {
+            updateHomepageImages(data.settings.homepageImages);
+          }
         }
       })
       .catch(function(error) {

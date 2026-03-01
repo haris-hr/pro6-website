@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { AdminHeader } from "@/components/admin";
-import { Save, Loader2 } from "lucide-react";
-import { getSiteSettings, updateSiteSettings } from "@/lib/firebase/firestore";
-import type { SiteSettings } from "@/types";
+import { Save, Loader2, Plus, X } from "lucide-react";
+import { getSiteSettings, updateSiteSettings, getAllMedia } from "@/lib/firebase/firestore";
+import type { SiteSettings, MediaFile } from "@/types";
 
 // Local settings type that matches the form fields
 interface FormSettings {
@@ -21,6 +21,7 @@ interface FormSettings {
     facebook: string;
     instagram: string;
   };
+  homepageImages: string[];
 }
 
 const defaultSettings: FormSettings = {
@@ -37,6 +38,12 @@ const defaultSettings: FormSettings = {
     facebook: "https://www.facebook.com/",
     instagram: "https://www.instagram.com/",
   },
+  homepageImages: [
+    "/images/pro6-1.jpg",
+    "/images/pro6-2.jpg",
+    "/images/pro6-3.jpg",
+    "/images/pro6-4.jpg",
+  ],
 };
 
 // Convert SiteSettings from Firestore to FormSettings
@@ -59,6 +66,7 @@ function toFormSettings(siteSettings: SiteSettings): FormSettings {
       facebook: facebookLink?.url || '',
       instagram: instagramLink?.url || '',
     },
+    homepageImages: siteSettings.homepage?.images || defaultSettings.homepageImages,
   };
 }
 
@@ -73,6 +81,9 @@ function toSiteSettings(formSettings: FormSettings): Partial<SiteSettings> {
       { label: "Over ons", href: "/over-ons" },
       { label: "Contact", href: "/contact" },
     ],
+    homepage: {
+      images: formSettings.homepageImages,
+    },
     footer: {
       address: {
         street: formSettings.address.street,
@@ -95,15 +106,22 @@ export default function SettingsAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+  const [media, setMedia] = useState<MediaFile[]>([]);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaPickerIndex, setMediaPickerIndex] = useState<number>(0);
 
   // Load settings from Firestore on mount
   useEffect(() => {
     async function loadSettings() {
       try {
-        const siteSettings = await getSiteSettings();
+        const [siteSettings, mediaFiles] = await Promise.all([
+          getSiteSettings(),
+          getAllMedia()
+        ]);
         if (siteSettings) {
           setSettings(toFormSettings(siteSettings));
         }
+        setMedia(mediaFiles);
       } catch (error) {
         console.error("Error loading settings:", error);
       } finally {
@@ -112,6 +130,18 @@ export default function SettingsAdmin() {
     }
     loadSettings();
   }, []);
+
+  const handleImageSelect = (url: string) => {
+    const newImages = [...settings.homepageImages];
+    newImages[mediaPickerIndex] = url;
+    setSettings({ ...settings, homepageImages: newImages });
+    setShowMediaPicker(false);
+  };
+
+  const openMediaPicker = (index: number) => {
+    setMediaPickerIndex(index);
+    setShowMediaPicker(true);
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -246,6 +276,86 @@ export default function SettingsAdmin() {
           </div>
         </div>
 
+        {/* Homepage Images */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
+            Homepage Afbeeldingen
+          </h2>
+          <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
+            De 4 afbeeldingen die op de homepage worden getoond
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+            {settings.homepageImages.map((img, index) => (
+              <div
+                key={index}
+                onClick={() => openMediaPicker(index)}
+                style={{
+                  aspectRatio: "1/1",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  backgroundColor: "#f3f4f6",
+                  cursor: "pointer",
+                  position: "relative",
+                  border: "2px dashed #d1d5db",
+                }}
+              >
+                {img ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img}
+                      alt={`Homepage ${index + 1}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: 0,
+                        transition: "opacity 0.2s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
+                    >
+                      <span style={{ color: "#fff", fontSize: "12px", fontWeight: 500 }}>
+                        Wijzigen
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#9ca3af",
+                    }}
+                  >
+                    <Plus size={24} />
+                    <span style={{ fontSize: "12px", marginTop: "4px" }}>Afbeelding {index + 1}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Social Links */}
         <div
           style={{
@@ -342,6 +452,109 @@ export default function SettingsAdmin() {
           )}
         </div>
       </div>
+
+      {/* Media Picker Modal */}
+      {showMediaPicker && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowMediaPicker(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              width: "90%",
+              maxWidth: "800px",
+              maxHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #e5e7eb",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
+                Kies afbeelding {mediaPickerIndex + 1}
+              </h3>
+              <button
+                onClick={() => setShowMediaPicker(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
+              {media.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#6b7280" }}>
+                  Geen media gevonden. Upload eerst afbeeldingen via Media beheer.
+                </p>
+              ) : (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: "12px",
+                  }}
+                >
+                  {media
+                    .filter((m) => m.type === "image")
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => handleImageSelect(item.url)}
+                        style={{
+                          aspectRatio: "1/1",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          cursor: "pointer",
+                          border: "2px solid transparent",
+                          transition: "border-color 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.borderColor = "#3b82f6")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.borderColor = "transparent")
+                        }
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.url}
+                          alt={item.name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
