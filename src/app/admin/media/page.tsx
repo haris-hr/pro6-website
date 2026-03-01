@@ -314,7 +314,7 @@ export default function MediaAdmin() {
                     Klik om bestanden te uploaden
                   </p>
                   <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-                    Max 4 MB per bestand • JPEG, PNG, GIF, WebP, MP4, WebM
+                    Max 10 MB per bestand • JPEG, PNG, GIF, WebP, MP4, WebM
                   </p>
                 </>
               )}
