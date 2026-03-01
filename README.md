@@ -106,12 +106,12 @@ src/
 Create a `.env.local` file in the root directory with your Firebase credentials:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCG6JDLCtpWu1vH56t6tR5EY0dxC9hvy7s
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=pro6-cms.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=pro6-cms
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=pro6-cms.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=979394716324
-NEXT_PUBLIC_FIREBASE_APP_ID=1:979394716324:web:0e570a14c09d0ce3b9bc31
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 **Important:** Never commit `.env.local` to git! Use `.env.example` as a template for other developers.
