@@ -6,9 +6,14 @@
   'use strict';
 
   function createProjectCard(project) {
+    var defaultImageBadge = project.isDefaultImage 
+      ? '<div class="default-image-badge">Standaard afbeelding</div>' 
+      : '';
+    
     return '<div class="project-card">' +
       '<a href="/projecten/' + project.slug + '">' +
         '<img src="' + project.heroImage + '" alt="' + project.title + '">' +
+        defaultImageBadge +
         '<div class="project-overlay">' +
           '<div class="project-info">' +
             '<h3 class="project-title">' + project.title + '</h3>' +

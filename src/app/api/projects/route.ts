@@ -14,7 +14,8 @@ export async function GET() {
         slug: p.slug,
         title: p.title,
         subtitle: p.subtitle || p.location || '',
-        heroImage: p.heroImage || '',
+        heroImage: p.heroImage || '/images/dok6-1.jpg',
+        isDefaultImage: !p.heroImage,
       }))
     });
   } catch (error) {
