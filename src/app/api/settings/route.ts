@@ -23,6 +23,7 @@ export async function GET() {
         email: settings.footer.email,
         socialLinks: settings.footer.socialLinks,
         homepageImages: settings.homepage?.images || [],
+        homepageVideo: settings.homepage?.video || '',
       }
     });
   } catch (error) {

@@ -8,12 +8,21 @@ import { ArrowLeft, Save, Loader2, Plus, X, GripVertical } from "lucide-react";
 import { createProject, getAllMedia, getAllProjects } from "@/lib/firebase/firestore";
 import type { Project, MediaFile } from "@/types";
 
+interface StaticImage {
+  name: string;
+  url: string;
+  type: string;
+  folder: string;
+}
+
 export default function NewProjectPage() {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [media, setMedia] = useState<MediaFile[]>([]);
+  const [staticImages, setStaticImages] = useState<StaticImage[]>([]);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
-  const [mediaPickerTarget, setMediaPickerTarget] = useState<"hero" | "gallery">("hero");
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<"hero" | "gallery" | "video">("hero");
+  const [showStaticMedia, setShowStaticMedia] = useState(false);
   
   const [formData, setFormData] = useState<Partial<Project>>({
     title: "",
@@ -41,6 +50,13 @@ export default function NewProjectPage() {
         setMedia(mediaFiles);
         // Set default order to be after all existing projects
         setFormData(prev => ({ ...prev, order: projects.length + 1 }));
+
+        // Load static images
+        const staticRes = await fetch("/api/static-images");
+        const staticData = await staticRes.json();
+        if (staticData.success) {
+          setStaticImages(staticData.images);
+        }
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -103,10 +119,18 @@ export default function NewProjectPage() {
   const handleImageSelect = (url: string) => {
     if (mediaPickerTarget === "hero") {
       setFormData({ ...formData, heroImage: url });
+    } else if (mediaPickerTarget === "video") {
+      setFormData({ ...formData, heroVideo: url });
     } else {
       setFormData({ ...formData, images: [...(formData.images || []), url] });
     }
     setShowMediaPicker(false);
+  };
+
+  const openMediaPicker = (target: "hero" | "gallery" | "video") => {
+    setMediaPickerTarget(target);
+    setShowStaticMedia(false);
+    setShowMediaPicker(true);
   };
 
   const removeGalleryImage = (index: number) => {
@@ -358,12 +382,31 @@ export default function NewProjectPage() {
               {/* Hero Video */}
               <div style={{ backgroundColor: "#fff", borderRadius: "12px", padding: "24px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
                 <h3 style={{ margin: "0 0 20px", fontSize: "16px", fontWeight: 600 }}>Hero video (optioneel)</h3>
+                {formData.heroVideo && (
+                  <div style={{ marginBottom: "12px", position: "relative", borderRadius: "8px", overflow: "hidden", backgroundColor: "#000" }}>
+                    <video src={formData.heroVideo} style={{ width: "100%", maxHeight: "150px", objectFit: "contain" }} muted />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, heroVideo: "" })}
+                      style={{ position: "absolute", top: "8px", right: "8px", width: "24px", height: "24px", backgroundColor: "#ef4444", color: "#fff", border: "none", borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => openMediaPicker("video")}
+                  style={{ width: "100%", padding: "10px", backgroundColor: "#f3f4f6", border: "1px dashed #d1d5db", borderRadius: "8px", cursor: "pointer", fontSize: "14px" }}
+                >
+                  Video kiezen
+                </button>
                 <input
                   type="text"
                   value={formData.heroVideo}
                   onChange={(e) => setFormData({ ...formData, heroVideo: e.target.value })}
-                  placeholder="Video URL"
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px" }}
+                  placeholder="Of voer een video URL in..."
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px", marginTop: "8px" }}
                 />
               </div>
             </div>
@@ -376,30 +419,90 @@ export default function NewProjectPage() {
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ backgroundColor: "#fff", borderRadius: "12px", width: "90%", maxWidth: "800px", maxHeight: "80vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "20px", borderBottom: "1px solid #e5e7eb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>Kies afbeelding</h3>
+              <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>
+                Kies {mediaPickerTarget === "video" ? "video" : "afbeelding"}
+              </h3>
               <button onClick={() => setShowMediaPicker(false)} style={{ background: "none", border: "none", cursor: "pointer" }}>
                 <X size={24} />
               </button>
             </div>
+
+            {/* Toggle between uploaded and static media */}
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid #e5e7eb", display: "flex", gap: "8px" }}>
+              <button
+                onClick={() => setShowStaticMedia(false)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  backgroundColor: !showStaticMedia ? "#3b82f6" : "#f3f4f6",
+                  color: !showStaticMedia ? "#fff" : "#374151",
+                }}
+              >
+                Geüpload
+              </button>
+              <button
+                onClick={() => setShowStaticMedia(true)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  backgroundColor: showStaticMedia ? "#3b82f6" : "#f3f4f6",
+                  color: showStaticMedia ? "#fff" : "#374151",
+                }}
+              >
+                Bestaande bestanden
+              </button>
+            </div>
+
             <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
-              {media.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#6b7280" }}>Geen media gevonden. Upload eerst afbeeldingen via Media beheer.</p>
-              ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
-                  {media.filter(m => m.type === "image").map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleImageSelect(item.url)}
-                      style={{ aspectRatio: "1/1", borderRadius: "8px", overflow: "hidden", cursor: "pointer", border: "2px solid transparent", transition: "border-color 0.2s" }}
-                      onMouseEnter={(e) => e.currentTarget.style.borderColor = "#3b82f6"}
-                      onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={item.url} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const mediaType = mediaPickerTarget === "video" ? "video" : "image";
+                const currentMedia = showStaticMedia 
+                  ? staticImages.filter(m => m.type === mediaType)
+                  : media.filter(m => m.type === mediaType);
+                
+                if (currentMedia.length === 0) {
+                  return (
+                    <p style={{ textAlign: "center", color: "#6b7280" }}>
+                      Geen {mediaType === "video" ? "video's" : "afbeeldingen"} gevonden. 
+                      {!showStaticMedia && " Upload eerst via Media beheer."}
+                    </p>
+                  );
+                }
+
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+                    {currentMedia.map((item) => (
+                      <div
+                        key={item.url || item.id}
+                        onClick={() => handleImageSelect(item.url)}
+                        style={{ aspectRatio: "1/1", borderRadius: "8px", overflow: "hidden", cursor: "pointer", border: "2px solid transparent", transition: "border-color 0.2s", position: "relative" }}
+                        onMouseEnter={(e) => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}
+                      >
+                        {mediaType === "video" ? (
+                          <video src={item.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.url} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        )}
+                        {showStaticMedia && (
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.6)", padding: "4px 8px", fontSize: "10px", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {item.name}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

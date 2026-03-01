@@ -35,6 +35,23 @@
     });
   }
 
+  function updateHomepageVideo(videoUrl) {
+    if (!videoUrl) return;
+    
+    // Find the hero video element
+    var videoSources = document.querySelectorAll('.hero-video-wrapper video source');
+    videoSources.forEach(function(source) {
+      source.setAttribute('src', videoUrl);
+    });
+    
+    // Also update the video element directly if it has src
+    var videos = document.querySelectorAll('.hero-video-wrapper video');
+    videos.forEach(function(video) {
+      // Reload the video with new source
+      video.load();
+    });
+  }
+
   function updateFooterWithSettings(settings) {
     // Update address
     if (settings.address) {
@@ -118,6 +135,9 @@
           updateFooterWithSettings(data.settings);
           if (data.settings.homepageImages) {
             updateHomepageImages(data.settings.homepageImages);
+          }
+          if (data.settings.homepageVideo) {
+            updateHomepageVideo(data.settings.homepageVideo);
           }
         }
       })

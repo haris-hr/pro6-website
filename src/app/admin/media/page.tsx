@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { AdminHeader } from "@/components/admin";
-import { Upload, Trash2, Copy, Check, Loader2, FolderOpen } from "lucide-react";
+import { Upload, Trash2, Copy, Check, Loader2, FolderOpen, HardDrive } from "lucide-react";
 import { subscribeMedia, createMedia, deleteMedia } from "@/lib/firebase/firestore";
 import type { MediaFile } from "@/types";
 
@@ -14,15 +14,35 @@ interface StaticImage {
   folder: string;
 }
 
+interface StorageUsage {
+  usedMB: number;
+  limitMB: number;
+  percentage: number;
+  fileCount: number;
+}
+
 export default function MediaAdmin() {
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [staticImages, setStaticImages] = useState<StaticImage[]>([]);
+  const [storageUsage, setStorageUsage] = useState<StorageUsage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"uploaded" | "static">("uploaded");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchStorageUsage = async () => {
+    try {
+      const res = await fetch("/api/storage-usage");
+      const data = await res.json();
+      if (data.success) {
+        setStorageUsage(data);
+      }
+    } catch (err) {
+      console.error("Error fetching storage usage:", err);
+    }
+  };
 
   useEffect(() => {
     // Subscribe to real-time media updates
@@ -40,6 +60,9 @@ export default function MediaAdmin() {
         }
       })
       .catch((err) => console.error("Error fetching static images:", err));
+
+    // Fetch storage usage
+    fetchStorageUsage();
 
     return () => unsubscribe();
   }, []);
@@ -99,13 +122,16 @@ export default function MediaAdmin() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+
+    // Refresh storage usage
+    fetchStorageUsage();
   };
 
   const handleDelete = async (item: MediaFile) => {
     if (!confirm("Weet je zeker dat je dit bestand wilt verwijderen?")) return;
 
     try {
-      // Delete the actual file from disk
+      // Delete the actual file from Vercel Blob storage
       await fetch("/api/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -114,6 +140,9 @@ export default function MediaAdmin() {
 
       // Delete from Firestore
       await deleteMedia(item.id);
+
+      // Refresh storage usage
+      fetchStorageUsage();
     } catch (error) {
       console.error("Delete error:", error);
       alert("Er is iets misgegaan bij het verwijderen.");
@@ -165,6 +194,55 @@ export default function MediaAdmin() {
       />
 
       <div style={{ padding: "0 30px 30px" }}>
+        {/* Storage Usage Indicator */}
+        {storageUsage && (
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "16px 20px",
+              marginBottom: "24px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+            }}
+          >
+            <HardDrive size={24} style={{ color: "#6b7280" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "#374151" }}>
+                  Opslag gebruikt
+                </span>
+                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                  {storageUsage.usedMB.toFixed(2)} MB / {storageUsage.limitMB} MB
+                </span>
+              </div>
+              <div
+                style={{
+                  height: "8px",
+                  backgroundColor: "#e5e7eb",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${Math.min(storageUsage.percentage, 100)}%`,
+                    backgroundColor: storageUsage.percentage > 90 ? "#dc2626" : storageUsage.percentage > 70 ? "#f59e0b" : "#10b981",
+                    borderRadius: "4px",
+                    transition: "width 0.3s ease",
+                  }}
+                />
+              </div>
+              <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#9ca3af" }}>
+                {storageUsage.fileCount} bestanden • {storageUsage.percentage}% gebruikt
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
           <button

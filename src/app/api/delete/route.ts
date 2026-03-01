@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
+import { del } from "@vercel/blob";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,26 +13,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only allow deleting files from /images or /videos folders
-    if (!url.startsWith("/images/") && !url.startsWith("/videos/")) {
-      return NextResponse.json(
-        { error: "Cannot delete files outside of images/videos folders" },
-        { status: 403 }
-      );
-    }
-
-    // Construct the file path
-    const filePath = path.join(process.cwd(), "public", url);
-
-    // Delete the file
+    // Delete from Vercel Blob storage
     try {
-      await unlink(filePath);
-    } catch (fileError: unknown) {
-      // File might not exist, which is fine - we still want to clean up Firestore
-      const error = fileError as { code?: string };
-      if (error.code !== "ENOENT") {
-        console.error("Error deleting file:", fileError);
-      }
+      await del(url);
+    } catch (blobError) {
+      // Log error but continue - we still want to clean up Firestore
+      console.error("Error deleting from Vercel Blob:", blobError);
     }
 
     return NextResponse.json({

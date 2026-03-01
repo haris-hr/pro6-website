@@ -172,6 +172,7 @@ export interface SiteSettings {
   }[];
   homepage: {
     images: string[]; // Array of 4 images for homepage gallery
+    video?: string; // Homepage background video URL
   };
   footer: {
     address: {

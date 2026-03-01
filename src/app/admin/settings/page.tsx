@@ -6,6 +6,14 @@ import { Save, Loader2, Plus, X } from "lucide-react";
 import { getSiteSettings, updateSiteSettings, getAllMedia } from "@/lib/firebase/firestore";
 import type { SiteSettings, MediaFile } from "@/types";
 
+// Static image type from API
+interface StaticImage {
+  name: string;
+  url: string;
+  type: string;
+  folder: string;
+}
+
 // Local settings type that matches the form fields
 interface FormSettings {
   logo: string;
@@ -22,6 +30,7 @@ interface FormSettings {
     instagram: string;
   };
   homepageImages: string[];
+  homepageVideo: string;
 }
 
 const defaultSettings: FormSettings = {
@@ -44,6 +53,7 @@ const defaultSettings: FormSettings = {
     "/images/pro6-3.jpg",
     "/images/pro6-4.jpg",
   ],
+  homepageVideo: "/video.mp4",
 };
 
 // Convert SiteSettings from Firestore to FormSettings
@@ -67,6 +77,7 @@ function toFormSettings(siteSettings: SiteSettings): FormSettings {
       instagram: instagramLink?.url || '',
     },
     homepageImages: siteSettings.homepage?.images || defaultSettings.homepageImages,
+    homepageVideo: siteSettings.homepage?.video || defaultSettings.homepageVideo,
   };
 }
 
@@ -83,6 +94,7 @@ function toSiteSettings(formSettings: FormSettings): Partial<SiteSettings> {
     ],
     homepage: {
       images: formSettings.homepageImages,
+      video: formSettings.homepageVideo,
     },
     footer: {
       address: {
@@ -107,8 +119,11 @@ export default function SettingsAdmin() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [media, setMedia] = useState<MediaFile[]>([]);
+  const [staticImages, setStaticImages] = useState<StaticImage[]>([]);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [mediaPickerIndex, setMediaPickerIndex] = useState<number>(0);
+  const [mediaPickerType, setMediaPickerType] = useState<"image" | "video">("image");
+  const [showStaticMedia, setShowStaticMedia] = useState(false);
 
   // Load settings from Firestore on mount
   useEffect(() => {
@@ -122,6 +137,13 @@ export default function SettingsAdmin() {
           setSettings(toFormSettings(siteSettings));
         }
         setMedia(mediaFiles);
+
+        // Load static images
+        const staticRes = await fetch("/api/static-images");
+        const staticData = await staticRes.json();
+        if (staticData.success) {
+          setStaticImages(staticData.images);
+        }
       } catch (error) {
         console.error("Error loading settings:", error);
       } finally {
@@ -132,14 +154,20 @@ export default function SettingsAdmin() {
   }, []);
 
   const handleImageSelect = (url: string) => {
-    const newImages = [...settings.homepageImages];
-    newImages[mediaPickerIndex] = url;
-    setSettings({ ...settings, homepageImages: newImages });
+    if (mediaPickerType === "video") {
+      setSettings({ ...settings, homepageVideo: url });
+    } else {
+      const newImages = [...settings.homepageImages];
+      newImages[mediaPickerIndex] = url;
+      setSettings({ ...settings, homepageImages: newImages });
+    }
     setShowMediaPicker(false);
   };
 
-  const openMediaPicker = (index: number) => {
+  const openMediaPicker = (index: number, type: "image" | "video" = "image") => {
     setMediaPickerIndex(index);
+    setMediaPickerType(type);
+    setShowStaticMedia(false);
     setShowMediaPicker(true);
   };
 
@@ -356,6 +384,102 @@ export default function SettingsAdmin() {
           </div>
         </div>
 
+        {/* Homepage Video */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            padding: "24px",
+            marginBottom: "24px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
+            Homepage Video
+          </h2>
+          <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
+            De achtergrond video op de homepage
+          </p>
+
+          <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+            <div
+              onClick={() => openMediaPicker(0, "video")}
+              style={{
+                width: "200px",
+                aspectRatio: "16/9",
+                borderRadius: "8px",
+                overflow: "hidden",
+                backgroundColor: "#f3f4f6",
+                cursor: "pointer",
+                position: "relative",
+                border: "2px dashed #d1d5db",
+                flexShrink: 0,
+              }}
+            >
+              {settings.homepageVideo ? (
+                <>
+                  <video
+                    src={settings.homepageVideo}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    muted
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(0,0,0,0.4)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0,
+                      transition: "opacity 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
+                  >
+                    <span style={{ color: "#fff", fontSize: "12px", fontWeight: 500 }}>
+                      Wijzigen
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#9ca3af",
+                  }}
+                >
+                  <Plus size={24} />
+                  <span style={{ fontSize: "12px", marginTop: "4px" }}>Kies video</span>
+                </div>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <input
+                type="text"
+                value={settings.homepageVideo}
+                onChange={(e) => setSettings({ ...settings, homepageVideo: e.target.value })}
+                placeholder="Of voer een video URL in..."
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                }}
+              />
+              <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#9ca3af" }}>
+                Ondersteunde formaten: MP4, WebM
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Social Links */}
         <div
           style={{
@@ -489,7 +613,7 @@ export default function SettingsAdmin() {
               }}
             >
               <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
-                Kies afbeelding {mediaPickerIndex + 1}
+                Kies {mediaPickerType === "video" ? "video" : `afbeelding ${mediaPickerIndex + 1}`}
               </h3>
               <button
                 onClick={() => setShowMediaPicker(false)}
@@ -503,53 +627,166 @@ export default function SettingsAdmin() {
                 <X size={24} />
               </button>
             </div>
+
+            {/* Toggle between uploaded and static media */}
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid #e5e7eb", display: "flex", gap: "8px" }}>
+              <button
+                onClick={() => setShowStaticMedia(false)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  backgroundColor: !showStaticMedia ? "#3b82f6" : "#f3f4f6",
+                  color: !showStaticMedia ? "#fff" : "#374151",
+                }}
+              >
+                Geüpload
+              </button>
+              <button
+                onClick={() => setShowStaticMedia(true)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  backgroundColor: showStaticMedia ? "#3b82f6" : "#f3f4f6",
+                  color: showStaticMedia ? "#fff" : "#374151",
+                }}
+              >
+                Bestaande bestanden
+              </button>
+            </div>
+
             <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
-              {media.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#6b7280" }}>
-                  Geen media gevonden. Upload eerst afbeeldingen via Media beheer.
-                </p>
-              ) : (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "12px",
-                  }}
-                >
-                  {media
-                    .filter((m) => m.type === "image")
-                    .map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleImageSelect(item.url)}
-                        style={{
-                          aspectRatio: "1/1",
-                          borderRadius: "8px",
-                          overflow: "hidden",
-                          cursor: "pointer",
-                          border: "2px solid transparent",
-                          transition: "border-color 0.2s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.borderColor = "#3b82f6")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.borderColor = "transparent")
-                        }
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.url}
-                          alt={item.name}
+              {showStaticMedia ? (
+                // Static media from /public folder
+                staticImages.filter((m) => m.type === mediaPickerType).length === 0 ? (
+                  <p style={{ textAlign: "center", color: "#6b7280" }}>
+                    Geen {mediaPickerType === "video" ? "video's" : "afbeeldingen"} gevonden in /public.
+                  </p>
+                ) : (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(4, 1fr)",
+                      gap: "12px",
+                    }}
+                  >
+                    {staticImages
+                      .filter((m) => m.type === mediaPickerType)
+                      .map((item) => (
+                        <div
+                          key={item.url}
+                          onClick={() => handleImageSelect(item.url)}
                           style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
+                            aspectRatio: "1/1",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                            cursor: "pointer",
+                            border: "2px solid transparent",
+                            transition: "border-color 0.2s",
+                            position: "relative",
                           }}
-                        />
-                      </div>
-                    ))}
-                </div>
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.borderColor = "#3b82f6")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.borderColor = "transparent")
+                          }
+                        >
+                          {mediaPickerType === "video" ? (
+                            <video
+                              src={item.url}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              muted
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.url}
+                              alt={item.name}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                          )}
+                          <div
+                            style={{
+                              position: "absolute",
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              backgroundColor: "rgba(0,0,0,0.6)",
+                              padding: "4px 8px",
+                              fontSize: "10px",
+                              color: "#fff",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {item.name}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )
+              ) : (
+                // Uploaded media from Firestore
+                media.filter((m) => m.type === mediaPickerType).length === 0 ? (
+                  <p style={{ textAlign: "center", color: "#6b7280" }}>
+                    Geen {mediaPickerType === "video" ? "video's" : "afbeeldingen"} gevonden. Upload eerst via Media beheer.
+                  </p>
+                ) : (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(4, 1fr)",
+                      gap: "12px",
+                    }}
+                  >
+                    {media
+                      .filter((m) => m.type === mediaPickerType)
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleImageSelect(item.url)}
+                          style={{
+                            aspectRatio: "1/1",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                            cursor: "pointer",
+                            border: "2px solid transparent",
+                            transition: "border-color 0.2s",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.borderColor = "#3b82f6")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.borderColor = "transparent")
+                          }
+                        >
+                          {mediaPickerType === "video" ? (
+                            <video
+                              src={item.url}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              muted
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.url}
+                              alt={item.name}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                )
               )}
             </div>
           </div>
