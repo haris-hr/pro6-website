@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/blob": "^2.3.0",
     "clsx": "^2.1.1",
     "firebase": "^12.9.0",
     "gsap": "^3.14.2",

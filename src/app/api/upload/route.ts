@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
-// Max file size: 4 MB
-const MAX_FILE_SIZE = 4 * 1024 * 1024;
+// Max file size: 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 // Allowed file types
 const ALLOWED_TYPES = [
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "File too large. Maximum size is 4 MB" },
+        { error: "File too large. Maximum size is 10 MB" },
         { status: 400 }
       );
     }
@@ -49,26 +48,18 @@ export async function POST(request: NextRequest) {
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `${timestamp}-${originalName}`;
 
-    // Determine if it's an image or video
+    // Determine folder based on type
     const isVideo = file.type.startsWith("video/");
     const folder = isVideo ? "videos" : "images";
 
-    // Create the upload directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), "public", folder);
-    await mkdir(uploadDir, { recursive: true });
-
-    // Write the file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
-
-    // Return the public URL path
-    const url = `/${folder}/${filename}`;
+    // Upload to Vercel Blob
+    const blob = await put(`${folder}/${filename}`, file, {
+      access: "public",
+    });
 
     return NextResponse.json({
       success: true,
-      url,
+      url: blob.url,
       name: file.name,
       size: file.size,
       type: isVideo ? "video" : "image",

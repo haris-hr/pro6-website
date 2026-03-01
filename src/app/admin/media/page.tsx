@@ -5,7 +5,6 @@ import Image from "next/image";
 import { AdminHeader } from "@/components/admin";
 import { Upload, Trash2, Copy, Check, Loader2, FolderOpen } from "lucide-react";
 import { subscribeMedia, createMedia, deleteMedia } from "@/lib/firebase/firestore";
-import { uploadImage, uploadVideo } from "@/lib/firebase/storage";
 import type { MediaFile } from "@/types";
 
 interface StaticImage {
@@ -56,27 +55,35 @@ export default function MediaAdmin() {
 
     for (const file of Array.from(files)) {
       try {
-        // Validate file type
-        const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"];
-        if (!allowedTypes.includes(file.type)) {
-          alert(`Bestandstype niet toegestaan: ${file.name}`);
+        // Upload via API route (Vercel Blob)
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("Upload error:", error);
+          alert(`Fout bij uploaden van ${file.name}: ${error.error}`);
           continue;
         }
 
-        // Validate file size (max 10 MB)
-        const maxSize = 10 * 1024 * 1024;
-        if (file.size > maxSize) {
-          alert(`Bestand te groot (max 10 MB): ${file.name}`);
-          continue;
-        }
-
-        // Upload directly to Firebase Storage
-        const isVideo = file.type.startsWith("video/");
-        const mediaFile = isVideo 
-          ? await uploadVideo(file)
-          : await uploadImage(file);
+        const result = await response.json();
 
         // Save metadata to Firestore
+        const mediaFile: MediaFile = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          name: result.name,
+          url: result.url,
+          path: result.url,
+          type: result.type,
+          size: result.size,
+          createdAt: new Date(),
+        };
+
         await createMedia(mediaFile);
         uploaded++;
         setUploadProgress(`${uploaded}/${files.length} bestanden`);
