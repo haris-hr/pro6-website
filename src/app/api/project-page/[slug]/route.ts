@@ -56,7 +56,7 @@ export async function GET(
       `).join('')
     : '';
 
-  const heroImage = project.heroImage || '/images/dok6-1.jpg';
+  const heroImage = project.heroImage || '';
   const firstImage = project.images?.[0] || heroImage;
 
   // Build the HTML page
