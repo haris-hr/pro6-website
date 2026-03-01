@@ -237,7 +237,7 @@ export default function MediaAdmin() {
                 />
               </div>
               <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#9ca3af" }}>
-                {storageUsage.fileCount} bestanden • {storageUsage.percentage}% gebruikt
+                {media.length} bestanden • {storageUsage.percentage}% gebruikt
               </p>
             </div>
           </div>
