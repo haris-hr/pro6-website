@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { AdminHeader } from "@/components/admin";
 import { ArrowLeft, Save, Loader2, Plus, X, GripVertical } from "lucide-react";
@@ -230,7 +229,8 @@ export default function EditProjectPage() {
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
                     {(formData.images || []).map((img, index) => (
                       <div key={index} style={{ position: "relative", aspectRatio: "1/1", borderRadius: "8px", overflow: "hidden", backgroundColor: "#f3f4f6" }}>
-                        <Image src={img} alt={`Gallery ${index + 1}`} fill style={{ objectFit: "cover" }} />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img} alt={`Gallery ${index + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         <button
                           type="button"
                           onClick={() => removeGalleryImage(index)}
@@ -306,9 +306,10 @@ export default function EditProjectPage() {
               <div style={{ backgroundColor: "#fff", borderRadius: "12px", padding: "24px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
                 <h3 style={{ margin: "0 0 20px", fontSize: "16px", fontWeight: 600 }}>Hero afbeelding</h3>
                 
-                {formData.heroImage ? (
+                {formData.heroImage && formData.heroImage.length > 0 ? (
                   <div style={{ position: "relative", aspectRatio: "16/9", borderRadius: "8px", overflow: "hidden", marginBottom: "12px" }}>
-                    <Image src={formData.heroImage} alt="Hero" fill style={{ objectFit: "cover" }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={formData.heroImage} alt="Hero" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, heroImage: "" })}
@@ -371,7 +372,8 @@ export default function EditProjectPage() {
                       onMouseEnter={(e) => e.currentTarget.style.borderColor = "#3b82f6"}
                       onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}
                     >
-                      <Image src={item.url} alt={item.name} width={200} height={200} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.url} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   ))}
                 </div>
