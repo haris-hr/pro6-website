@@ -105,9 +105,15 @@ export default function MediaAdmin() {
     if (!confirm("Weet je zeker dat je dit bestand wilt verwijderen?")) return;
 
     try {
+      // Delete the actual file from disk
+      await fetch("/api/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: item.url }),
+      });
+
       // Delete from Firestore
       await deleteMedia(item.id);
-      // Note: The actual file remains on disk - would need server-side cleanup
     } catch (error) {
       console.error("Delete error:", error);
       alert("Er is iets misgegaan bij het verwijderen.");
