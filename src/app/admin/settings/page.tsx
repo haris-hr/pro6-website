@@ -314,12 +314,31 @@ export default function SettingsAdmin() {
             boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
           }}
         >
-          <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
-            Homepage Afbeeldingen
-          </h2>
-          <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
-            De 4 afbeeldingen die op de homepage worden getoond
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
+                Homepage Afbeeldingen
+              </h2>
+              <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
+                De 4 afbeeldingen die op de homepage worden getoond
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, homepageImages: defaultSettings.homepageImages })}
+              style={{
+                padding: "6px 12px",
+                fontSize: "12px",
+                color: "#6b7280",
+                backgroundColor: "#f3f4f6",
+                border: "1px solid #d1d5db",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Standaard herstellen
+            </button>
+          </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
             {settings.homepageImages.map((img, index) => (
@@ -394,12 +413,31 @@ export default function SettingsAdmin() {
             boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
           }}
         >
-          <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
-            Homepage Video
-          </h2>
-          <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
-            De achtergrond video op de homepage
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
+                Homepage Video
+              </h2>
+              <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
+                De achtergrond video op de homepage
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, homepageVideo: defaultSettings.homepageVideo })}
+              style={{
+                padding: "6px 12px",
+                fontSize: "12px",
+                color: "#6b7280",
+                backgroundColor: "#f3f4f6",
+                border: "1px solid #d1d5db",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Standaard herstellen
+            </button>
+          </div>
 
           <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
             <div
