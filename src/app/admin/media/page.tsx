@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { AdminHeader } from "@/components/admin";
-import { Upload, Trash2, Copy, Check, Loader2, FolderOpen, HardDrive } from "lucide-react";
+import { Upload, Trash2, Copy, Check, Loader2, FolderOpen, HardDrive, RefreshCw } from "lucide-react";
 import { subscribeMedia, createMedia, deleteMedia } from "@/lib/firebase/firestore";
 import type { MediaFile } from "@/types";
 
@@ -30,6 +30,7 @@ export default function MediaAdmin() {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"uploaded" | "static">("uploaded");
+  const [isSyncing, setIsSyncing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchStorageUsage = async () => {
@@ -42,6 +43,47 @@ export default function MediaAdmin() {
     } catch (err) {
       console.error("Error fetching storage usage:", err);
     }
+  };
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      // Get all files from Vercel Blob
+      const res = await fetch("/api/blob-files");
+      const data = await res.json();
+      
+      if (data.success && data.files) {
+        // Find files that exist in Blob but not in Firestore
+        const existingUrls = new Set(media.map(m => m.url));
+        const missingFiles = data.files.filter((f: { url: string }) => !existingUrls.has(f.url));
+        
+        // Add missing files to Firestore
+        for (const file of missingFiles) {
+          const isVideo = file.url.includes('/videos/') || file.name.endsWith('.mp4') || file.name.endsWith('.webm');
+          const mediaFile: MediaFile = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            name: file.name,
+            url: file.url,
+            path: file.url,
+            type: isVideo ? "video" : "image",
+            size: file.size,
+            createdAt: new Date(file.uploadedAt),
+          };
+          await createMedia(mediaFile);
+        }
+        
+        if (missingFiles.length > 0) {
+          alert(`${missingFiles.length} bestand(en) hersteld uit Vercel Blob!`);
+        } else {
+          alert("Alle bestanden zijn al gesynchroniseerd.");
+        }
+      }
+    } catch (err) {
+      console.error("Sync error:", err);
+      alert("Er is iets misgegaan bij het synchroniseren.");
+    }
+    setIsSyncing(false);
+    fetchStorageUsage();
   };
 
   useEffect(() => {
@@ -240,6 +282,27 @@ export default function MediaAdmin() {
                 {media.length} bestanden • {storageUsage.percentage}% gebruikt
               </p>
             </div>
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              style={{
+                padding: "10px 16px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                backgroundColor: "#fff",
+                cursor: isSyncing ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#6b7280",
+                fontSize: "13px",
+                opacity: isSyncing ? 0.7 : 1,
+              }}
+              title="Synchroniseer bestanden uit Vercel Blob"
+            >
+              <RefreshCw size={16} style={{ animation: isSyncing ? "spin 1s linear infinite" : "none" }} />
+              {isSyncing ? "Syncing..." : "Sync"}
+            </button>
           </div>
         )}
 
