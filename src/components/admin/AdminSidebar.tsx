@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, FileText, FolderOpen, Image, Settings, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, FileText, FolderOpen, Image, Settings, LogOut, ExternalLink } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface AdminSidebarProps {
   isCollapsed?: boolean;
@@ -19,6 +20,17 @@ const navItems = [
 
 export default function AdminSidebar({ isCollapsed = false, onToggle }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.push("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <aside
@@ -106,9 +118,28 @@ export default function AdminSidebar({ isCollapsed = false, onToggle }: AdminSid
             textDecoration: "none",
           }}
         >
-          <LogOut size={20} />
-          {!isCollapsed && <span>Terug naar site</span>}
+          <ExternalLink size={20} />
+          {!isCollapsed && <span>Bekijk site</span>}
         </Link>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "14px 0",
+            color: "rgba(255,255,255,0.7)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            width: "100%",
+            fontSize: "inherit",
+            fontFamily: "inherit",
+          }}
+        >
+          <LogOut size={20} />
+          {!isCollapsed && <span>Uitloggen</span>}
+        </button>
       </div>
 
       {/* Toggle Button */}
