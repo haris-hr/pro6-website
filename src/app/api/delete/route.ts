@@ -13,22 +13,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Attempting to delete from Vercel Blob:", url);
+
     // Delete from Vercel Blob storage
-    try {
-      await del(url);
-    } catch (blobError) {
-      // Log error but continue - we still want to clean up Firestore
-      console.error("Error deleting from Vercel Blob:", blobError);
-    }
+    await del(url);
+    
+    console.log("Successfully deleted from Vercel Blob:", url);
 
     return NextResponse.json({
       success: true,
       message: "File deleted successfully",
+      deletedUrl: url,
     });
   } catch (error) {
     console.error("Delete error:", error);
     return NextResponse.json(
-      { error: "Failed to delete file" },
+      { error: "Failed to delete file", details: String(error) },
       { status: 500 }
     );
   }

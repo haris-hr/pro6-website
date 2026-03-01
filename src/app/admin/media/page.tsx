@@ -174,11 +174,19 @@ export default function MediaAdmin() {
 
     try {
       // Delete the actual file from Vercel Blob storage
-      await fetch("/api/delete", {
+      const response = await fetch("/api/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: item.url }),
       });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        console.error("Blob delete failed:", result);
+        alert(`Fout bij verwijderen uit Vercel Blob: ${result.details || result.error}`);
+        return;
+      }
 
       // Delete from Firestore
       await deleteMedia(item.id);
