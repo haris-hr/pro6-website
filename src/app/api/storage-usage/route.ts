@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
 
+// CORS headers for cross-origin requests
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     let totalSize = 0;
@@ -30,12 +41,12 @@ export async function GET() {
       limitMB,
       percentage: Math.round((usedMB / limitMB) * 100),
       fileCount,
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error("Storage usage error:", error);
     return NextResponse.json(
       { error: "Failed to get storage usage" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

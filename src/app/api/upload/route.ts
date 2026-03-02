@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
+// CORS headers for cross-origin requests from DirectAdmin
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 // Max file size: 10 MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -23,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { error: "No file provided" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -31,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: "File type not allowed. Allowed types: JPEG, PNG, GIF, WebP, MP4, WebM" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File too large. Maximum size is 10 MB" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -63,12 +75,12 @@ export async function POST(request: NextRequest) {
       name: file.name,
       size: file.size,
       type: isVideo ? "video" : "image",
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
       { error: "Failed to upload file" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
